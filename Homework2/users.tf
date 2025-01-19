@@ -17,3 +17,6 @@ resource "aws_iam_group" "group" {
 }
 
 
+resource "aws_iam_user" "manual" {
+    name = "hello"
+}
