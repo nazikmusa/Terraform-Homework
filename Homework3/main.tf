@@ -2,17 +2,17 @@ provider aws {
     region = "eu-central-1"
 }
 
-resource "aws_key_pair" "Bastion" {
-  key_name   = "Bastion"
+resource "aws_key_pair" "deployer" {
+  key_name   = "Bastion-key"
   public_key = file("~/.ssh/id_rsa.pub")
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "amazon_linux" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20250115"]
+    values = ["al2023-ami-2023.6.20250115.0-kernel-6.1-x86_64"]
   }
 
   filter {
@@ -20,17 +20,17 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["137112412989"] # Canonical
 }
 
 
 
 resource "aws_instance" "web1" {
-  ami           = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
-  availability_zone = "eu-central-1a"
+  # availability_zone = "eu-central-1a"
   subnet_id = "subnet-06caf31e6d1732fc2"
-  key_name = "Bastion"
+  key_name = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.allow_tls.id]
   user_data = file("apache.sh")
 
@@ -40,11 +40,11 @@ resource "aws_instance" "web1" {
 }
 
 resource "aws_instance" "web2" {
-  ami           = "ami-07eef52105e8a2059"
+  ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
-  availability_zone = "eu-central-1b"
+ # availability_zone = "eu-central-1b"
   subnet_id = "subnet-0ffe1ebdd6ad3101e"
-  key_name = aws_key_pair.Bastion.key_name
+  key_name = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.allow_tls.id]
   user_data = file("apache.sh")
 
@@ -54,11 +54,11 @@ resource "aws_instance" "web2" {
 }
 
 resource "aws_instance" "web3" {
-  ami           = "ami-0cdd6d7420844683b"
+  ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
-  availability_zone = "eu-central-1c"
+  # availability_zone = "eu-central-1c"
   subnet_id = "subnet-0d64c54e7695ee474"
-  key_name = aws_key_pair.Bastion.key_name
+  key_name = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.allow_tls.id]
   user_data = file("apache.sh")
 
