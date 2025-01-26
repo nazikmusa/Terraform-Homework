@@ -1,12 +1,10 @@
 provider aws {
     region = var.region
 }
-
 resource "aws_key_pair" "deployer" {
   key_name   = var.aws_key_pair
   public_key = file("~/.ssh/id_rsa.pub")
 }
-
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
 }
@@ -21,8 +19,6 @@ resource "aws_subnet" "main" {
     Name = "Main"
   }
 }
-
-
 resource "aws_subnet" "main2" {
   vpc_id     = aws_vpc.main.id
   cidr_block = var.subnet2
